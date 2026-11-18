@@ -1,0 +1,2 @@
+[2026-10-26 17:01:55] [n1-14-357] [info] 正在连接 http://192.168.137.117:7125/printer/gcode/script
+[2026-10-26 17:02:02] [n1-14-357] [success] 命令发送成功: NOZZLE_REPLACE NOZZLE=0 FORCE=1

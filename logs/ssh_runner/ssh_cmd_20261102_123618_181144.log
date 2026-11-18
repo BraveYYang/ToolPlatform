@@ -1,0 +1,461 @@
+[2026-11-02 12:36:18] START SSH COMMANDS
+
+[2026-11-02 12:36:18] (1/49) Connecting 172.16.180.148 172.16.180.148:22
+[2026-11-02 12:36:28] [error] 172.16.180.148: timed out
+
+[2026-11-02 12:36:28] (2/49) Connecting 172.16.180.155 172.16.180.155:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 81883028163A1F
+2: wifi_mac = FCEE28163A1F
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.65556329500011
+9: nozzles_pos_y = 312.8996
+[exit_code] 0
+
+[2026-11-02 12:36:29] (3/49) Connecting 172.16.180.156 172.16.180.156:22
+[2026-11-02 12:36:39] [error] 172.16.180.156: timed out
+
+[2026-11-02 12:36:39] (4/49) Connecting 172.16.182.156 172.16.182.156:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 19840028163A56
+2: wifi_mac = FCEE28163A56
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.73369946500004
+9: nozzles_pos_y = 312.7998
+[exit_code] 0
+
+[2026-11-02 12:36:40] (5/49) Connecting 172.16.182.152 172.16.182.152:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 41189928163BEA
+2: wifi_mac = FCEE28163BEA
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.85241507500014
+9: nozzles_pos_y = 312.8487
+[exit_code] 0
+
+[2026-11-02 12:36:40] (6/49) Connecting 172.16.183.17 172.16.183.17:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 2641652815CA2A
+2: wifi_mac = FCEE2815CA2A
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 34.01283876500031
+9: nozzles_pos_y = 313.0795
+[exit_code] 0
+
+[2026-11-02 12:36:41] (7/49) Connecting 172.16.180.166 172.16.180.166:22
+[2026-11-02 12:36:51] [error] 172.16.180.166: timed out
+
+[2026-11-02 12:36:51] (8/49) Connecting 172.16.180.167 172.16.180.167:22
+[2026-11-02 12:37:01] [error] 172.16.180.167: timed out
+
+[2026-11-02 12:37:01] (9/49) Connecting 172.16.180.173 172.16.180.173:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 59819528163AB4
+2: wifi_mac = FCEE28163AB4
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.733513499999276
+9: nozzles_pos_y = 312.6441
+[exit_code] 0
+
+[2026-11-02 12:37:02] (10/49) Connecting 172.16.180.176 172.16.180.176:22
+[2026-11-02 12:37:12] [error] 172.16.180.176: timed out
+
+[2026-11-02 12:37:12] (11/49) Connecting 172.16.180.180 172.16.180.180:22
+[2026-11-02 12:37:22] [error] 172.16.180.180: timed out
+
+[2026-11-02 12:37:22] (12/49) Connecting 172.16.180.62 172.16.180.62:22
+[2026-11-02 12:37:32] [error] 172.16.180.62: timed out
+
+[2026-11-02 12:37:32] (13/49) Connecting 172.16.180.58 172.16.180.58:22
+[2026-11-02 12:37:42] [error] 172.16.180.58: timed out
+
+[2026-11-02 12:37:42] (14/49) Connecting 172.16.180.185 172.16.180.185:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 63214028163797
+2: wifi_mac = FCEE28163797
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.86411311499985
+9: nozzles_pos_y = 312.9707
+[exit_code] 0
+
+[2026-11-02 12:37:43] (15/49) Connecting 172.16.180.50 172.16.180.50:22
+[2026-11-02 12:37:53] [error] 172.16.180.50: timed out
+
+[2026-11-02 12:37:53] (16/49) Connecting 172.16.181.31 172.16.181.31:22
+[2026-11-02 12:38:03] [error] 172.16.181.31: timed out
+
+[2026-11-02 12:38:03] (17/49) Connecting 172.16.180.237 172.16.180.237:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 7532512815E382
+2: wifi_mac = FCEE2815E382
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.886749499999
+9: nozzles_pos_y = 313.077
+[exit_code] 0
+
+[2026-11-02 12:38:03] (18/49) Connecting 172.16.180.241 172.16.180.241:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 14021128163AEC
+2: wifi_mac = FCEE28163AEC
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.6350027849996
+9: nozzles_pos_y = 312.2819
+[exit_code] 0
+
+[2026-11-02 12:38:04] (19/49) Connecting 172.16.180.244 172.16.180.244:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 6187402815E75D
+2: wifi_mac = FCEE2815E75D
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.37871961999936
+9: nozzles_pos_y = 312.7007
+[exit_code] 0
+
+[2026-11-02 12:38:05] (20/49) Connecting 172.16.180.255 172.16.180.255:22
+[2026-11-02 12:38:15] [error] 172.16.180.255: timed out
+
+[2026-11-02 12:38:15] (21/49) Connecting 172.16.181.8 172.16.181.8:22
+[2026-11-02 12:38:17] [error] 172.16.181.8: [WinError 10061] 由于目标计算机积极拒绝，无法连接。
+
+[2026-11-02 12:38:17] (22/49) Connecting 172.16.181.10 172.16.181.10:22
+[2026-11-02 12:38:27] [error] 172.16.181.10: timed out
+
+[2026-11-02 12:38:27] (23/49) Connecting 172.16.181.19 172.16.181.19:22
+[2026-11-02 12:38:37] [error] 172.16.181.19: timed out
+
+[2026-11-02 12:38:37] (24/49) Connecting 172.16.181.12 172.16.181.12:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 3156202815D3F9
+2: wifi_mac = FCEE2815D3F9
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.52279338499994
+9: nozzles_pos_y = 313.0475
+[exit_code] 0
+
+[2026-11-02 12:38:43] (25/49) Connecting 172.16.181.14 172.16.181.14:22
+[2026-11-02 12:38:53] [error] 172.16.181.14: timed out
+
+[2026-11-02 12:38:53] (26/49) Connecting 172.16.180.151 172.16.180.151:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 6642952815D0C9
+2: wifi_mac = FCEE2815D0C9
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.93650961999981
+9: nozzles_pos_y = 314.0673
+[exit_code] 0
+
+[2026-11-02 12:38:54] (27/49) Connecting 172.16.180.158 172.16.180.158:22
+[2026-11-02 12:39:04] [error] 172.16.180.158: timed out
+
+[2026-11-02 12:39:04] (28/49) Connecting 172.16.180.161 172.16.180.161:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 4974102816390E
+2: wifi_mac = FCEE2816390E
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.639536140000246
+9: nozzles_pos_y = 312.6755
+[exit_code] 0
+
+[2026-11-02 12:39:05] (29/49) Connecting 172.16.182.85 172.16.182.85:22
+[2026-11-02 12:39:15] [error] 172.16.182.85: timed out
+
+[2026-11-02 12:39:15] (30/49) Connecting 172.16.180.174 172.16.180.174:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 2866292815E410
+2: wifi_mac = FCEE2815E410
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.45112541499982
+9: nozzles_pos_y = 312.5895
+[exit_code] 0
+
+[2026-11-02 12:39:15] (31/49) Connecting 172.16.180.171 172.16.180.171:22
+[2026-11-02 12:39:25] [error] 172.16.180.171: timed out
+
+[2026-11-02 12:39:25] (32/49) Connecting 172.16.180.43 172.16.180.43:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 5479842815D434
+2: wifi_mac = FCEE2815D434
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.80571198500013
+9: nozzles_pos_y = 312.7977
+[exit_code] 0
+
+[2026-11-02 12:39:29] (33/49) Connecting 172.16.180.179 172.16.180.179:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 8363842815CFD8
+2: wifi_mac = FCEE2815CFD8
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.37339604499978
+9: nozzles_pos_y = 312.9704
+[exit_code] 0
+
+[2026-11-02 12:39:30] (34/49) Connecting 172.16.180.183 172.16.180.183:22
+[2026-11-02 12:39:40] [error] 172.16.180.183: timed out
+
+[2026-11-02 12:39:40] (35/49) Connecting 172.16.180.187 172.16.180.187:22
+[2026-11-02 12:39:50] [error] 172.16.180.187: timed out
+
+[2026-11-02 12:39:50] (36/49) Connecting 172.16.180.226 172.16.180.226:22
+[2026-11-02 12:40:00] [error] 172.16.180.226: timed out
+
+[2026-11-02 12:40:00] (37/49) Connecting 172.16.180.231 172.16.180.231:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 9906382815E6E4
+2: wifi_mac = FCEE2815E6E4
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.5655354
+9: nozzles_pos_y = 313.0953
+[exit_code] 0
+
+[2026-11-02 12:40:01] (38/49) Connecting 172.16.182.170 172.16.182.170:22
+[2026-11-02 12:40:11] [error] 172.16.182.170: timed out
+
+[2026-11-02 12:40:11] (39/49) Connecting 172.16.180.233 172.16.180.233:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 5082482815D00A
+2: wifi_mac = FCEE2815D00A
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.82044981500019
+9: nozzles_pos_y = 312.8423
+[exit_code] 0
+
+[2026-11-02 12:40:12] (40/49) Connecting 172.16.182.164 172.16.182.164:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 9495822815D091
+2: wifi_mac = FCEE2815D091
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.18293527500005
+9: nozzles_pos_y = 313.0628
+[exit_code] 0
+
+[2026-11-02 12:40:13] (41/49) Connecting 172.16.180.240 172.16.180.240:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 4066482815E70B
+2: wifi_mac = FCEE2815E70B
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.41261789500038
+9: nozzles_pos_y = 312.567
+[exit_code] 0
+
+[2026-11-02 12:40:15] (42/49) Connecting 172.16.183.226 172.16.183.226:22
+[2026-11-02 12:40:25] [error] 172.16.183.226: timed out
+
+[2026-11-02 12:40:25] (43/49) Connecting 172.16.180.248 172.16.180.248:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 58169728163B34
+2: wifi_mac = FCEE28163B34
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.32592546999986
+9: nozzles_pos_y = 312.7661
+[exit_code] 0
+
+[2026-11-02 12:40:25] (44/49) Connecting 172.16.180.251 172.16.180.251:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 74421328163974
+2: wifi_mac = FCEE28163974
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.36331743500011
+9: nozzles_pos_y = 313.2217
+[exit_code] 0
+
+[2026-11-02 12:40:26] (45/49) Connecting 172.16.181.3 172.16.181.3:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 5504232815E526
+2: wifi_mac = FCEE2815E526
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.92535849499946
+9: nozzles_pos_y = 313.1696
+[exit_code] 0
+
+[2026-11-02 12:40:28] (46/49) Connecting 172.16.180.214 172.16.180.214:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 1740052815D0D4
+2: wifi_mac = FCEE2815D0D4
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.36986525000003
+9: nozzles_pos_y = 312.8516
+[exit_code] 0
+
+[2026-11-02 12:40:29] (47/49) Connecting 172.16.182.135 172.16.182.135:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 84299728163B27
+2: wifi_mac = FCEE28163B27
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 34.0412660950001
+9: nozzles_pos_y = 313.1434
+[exit_code] 0
+
+[2026-11-02 12:40:29] (48/49) Connecting 172.16.181.11 172.16.181.11:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 3155062815E433
+2: wifi_mac = FCEE2815E433
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.39709108999985
+9: nozzles_pos_y = 313.298
+[exit_code] 0
+
+[2026-11-02 12:40:30] (49/49) Connecting 172.16.181.13 172.16.181.13:22
+--- CMD 1/1: keybox -l
+[stdout] 
+[secure storage]
+1: sn = 79009028163B66
+2: wifi_mac = FCEE28163B66
+3: model = F039
+4: board = CR0CUF039C13
+5: pcba_test = 0
+6: struct_ver = 1
+7: key_burned_flag = key_burned
+8: nozzles_pos_x = 33.593414555000095
+9: nozzles_pos_y = 312.8857
+[exit_code] 0
+[2026-11-02 12:40:59] DONE; completed=49/49
