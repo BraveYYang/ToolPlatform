@@ -80,54 +80,6 @@
         "key_file": ""
     },
     {
-        "name": "172",
-        "host": "172.16.182.135",
-        "port": 22,
-        "username": "root",
-        "password": "creality_5733",
-        "key_file": ""
-    },
-    {
-        "name": "219",
-        "host": "172.16.180.226",
-        "port": 22,
-        "username": "root",
-        "password": "creality_5733",
-        "key_file": ""
-    },
-    {
-        "name": "258",
-        "host": "172.16.181.11",
-        "port": 22,
-        "username": "root",
-        "password": "creality_5733",
-        "key_file": ""
-    },
-    {
-        "name": "147",
-        "host": "172.16.182.131",
-        "port": 22,
-        "username": "root",
-        "password": "creality_5733",
-        "key_file": ""
-    },
-    {
-        "name": "148",
-        "host": "172.16.180.183",
-        "port": 22,
-        "username": "root",
-        "password": "creality_5733",
-        "key_file": ""
-    },
-    {
-        "name": "256",
-        "host": "172.16.181.14",
-        "port": 22,
-        "username": "root",
-        "password": "creality_5733",
-        "key_file": ""
-    },
-    {
         "name": "135",
         "host": "172.16.181.12",
         "port": 22,
@@ -170,14 +122,6 @@
     {
         "name": "397",
         "host": "172.16.180.241",
-        "port": 22,
-        "username": "root",
-        "password": "creality_5733",
-        "key_file": ""
-    },
-    {
-        "name": "12",
-        "host": "172.16.180.255",
         "port": 22,
         "username": "root",
         "password": "creality_5733",

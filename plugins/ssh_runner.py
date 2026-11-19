@@ -1100,12 +1100,17 @@ class SSHRunnerPlugin(QWidget):
         self.device_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         self.device_table.verticalHeader().setDefaultSectionSize(24)
         self.device_table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        # 点击任意单元格都选中整行；支持多选
+        self.device_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.device_table.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
         device_layout.addWidget(self.device_table)
         device_buttons = QHBoxLayout()
         device_buttons.setContentsMargins(0, 0, 0, 0)
         device_buttons.setSpacing(4)
         self.btn_add = QPushButton("添加设备")
         self.btn_remove = QPushButton("删除选中")
+        self.btn_clear_all = QPushButton("清空全部")
+        self.btn_clear_all.setToolTip("清空所有设备 IP（需要确认）")
         self.btn_import_ip = QPushButton("从 iplist 导入")
         self.btn_import_text = QPushButton("粘贴文本导入")
         self.btn_import_text.setToolTip("粘贴每行“机台号 IP”或仅“IP”的设备清单")
@@ -1116,6 +1121,7 @@ class SSHRunnerPlugin(QWidget):
         for button in (
             self.btn_add,
             self.btn_remove,
+            self.btn_clear_all,
             self.btn_import_ip,
             self.btn_import_text,
             self.btn_reload,
@@ -1193,6 +1199,7 @@ class SSHRunnerPlugin(QWidget):
 
         self.btn_add.clicked.connect(self.add_device)
         self.btn_remove.clicked.connect(self.remove_device)
+        self.btn_clear_all.clicked.connect(self.clear_all_devices)
         self.btn_import_ip.clicked.connect(self.import_iplist)
         self.btn_import_text.clicked.connect(self.import_pasted_devices)
         self.btn_reload.clicked.connect(self.reload_devices)
@@ -1313,6 +1320,7 @@ class SSHRunnerPlugin(QWidget):
             self.btn_gcode,
             self.btn_add,
             self.btn_remove,
+            self.btn_clear_all,
             self.btn_import_ip,
             self.btn_import_text,
         ):
@@ -1405,17 +1413,66 @@ class SSHRunnerPlugin(QWidget):
         self.log("系统", "info", f"已添加设备: {name.strip()}")
 
     def remove_device(self) -> None:
-        row = self.device_table.currentRow()
-        if row < 0:
-            QMessageBox.warning(self, "提示", "请先选中设备行")
+        # 收集选中的所有行（支持多选）。selectedRows 是真正选中的；currentRow 只跟聚焦相关
+        selection_model = self.device_table.selectionModel()
+        rows = sorted({idx.row() for idx in selection_model.selectedRows()})
+        # 回退：selectedRows 为空时再看 currentRow
+        if not rows:
+            row = self.device_table.currentRow()
+            if row >= 0:
+                rows = [row]
+        
+        if not rows:
+            QMessageBox.warning(self, "提示", "请先在设备列表里点选一行或多行")
             return
-        device = self.device_manager.devices[row]
-        answer = QMessageBox.question(self, "确认", f"删除设备 {device.name}？")
+        
+        if any(r < 0 or r >= len(self.device_manager.devices) for r in rows):
+            QMessageBox.warning(self, "提示", "选中行与设备列表不一致，请点「重新加载」后再试")
+            return
+        
+        names = [self.device_manager.devices[r].name for r in rows]
+        if len(rows) == 1:
+            msg = f"删除设备 {names[0]}？"
+        else:
+            preview = "\n".join(f"  · {n}" for n in names[:6])
+            more = "" if len(names) <= 6 else f"\n  … 共 {len(names)} 台"
+            msg = f"将删除以下 {len(rows)} 台设备：\n{preview}{more}"
+        answer = QMessageBox.question(
+            self, "确认删除", msg,
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
         if answer != QMessageBox.StandardButton.Yes:
             return
-        self.device_manager.remove_device(row)
+        
+        # 从大到小删除，避免索引错位
+        for r in reversed(rows):
+            self.device_manager.remove_device(r)
         self.refresh_device_table()
-        self.log("系统", "info", f"已删除设备: {device.name}")
+        self.log("系统", "info", f"已删除 {len(rows)} 台设备: {', '.join(names)}")
+
+    def clear_all_devices(self) -> None:
+        """清空所有设备 IP。二次确认避免误操作。"""
+        total = len(self.device_manager.devices)
+        if total == 0:
+            QMessageBox.information(self, "提示", "设备列表已为空")
+            return
+        answer = QMessageBox.question(
+            self,
+            "确认清空",
+            f"将删除全部 {total} 台设备，此操作不可撤销（配置文件会被覆盖）。是否继续？",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        self.device_manager.devices.clear()
+        try:
+            self.device_manager.save()
+        except Exception as exc:
+            QMessageBox.warning(self, "保存失败", f"清空后写入配置失败：\n{exc}")
+        self.refresh_device_table()
+        self.log("系统", "info", f"已清空全部设备（原共 {total} 台）")
 
     def import_iplist(self) -> None:
         path, _filter = QFileDialog.getOpenFileName(self, "选择 iplist.txt", "", "Text (*.txt);;All (*.*)")
