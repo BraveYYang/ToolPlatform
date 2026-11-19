@@ -69,13 +69,24 @@ PLUGIN_META = {
 }
 
 
-# 原始脚本目录：默认指向 网床研究 目录，可用环境变量覆盖；原脚本不被修改
-SOURCE_DIR = Path(
-    os.environ.get(
-        "TOOLPLATFORM_WANGCHUANG_DIR",
-        r"E:\2.Python_Project\Project4-tools\网床研究",
-    )
-)
+# 原始脚本来源：环境变量 > 仓库内置副本(vendor/网床研究) > 原开发路径
+_PLUGIN_ROOT = Path(__file__).resolve().parent
+_PLATFORM_ROOT = _PLUGIN_ROOT.parent
+_BUNDLED_SOURCE_DIR = _PLATFORM_ROOT / "vendor" / "网床研究"
+_LEGACY_SOURCE_DIR = Path(r"E:\2.Python_Project\Project4-tools\网床研究")
+
+
+def resolve_source_dir() -> Path:
+    """按优先级定位原始脚本目录，方便在其他机器上直接运行。"""
+    env_dir = os.environ.get("TOOLPLATFORM_WANGCHUANG_DIR", "").strip()
+    if env_dir and Path(env_dir).is_dir():
+        return Path(env_dir)
+    if _BUNDLED_SOURCE_DIR.is_dir():
+        return _BUNDLED_SOURCE_DIR
+    return _LEGACY_SOURCE_DIR
+
+
+SOURCE_DIR = resolve_source_dir()
 SOURCE_SCRIPT = SOURCE_DIR / "网床日志分析GUI.py"
 
 
