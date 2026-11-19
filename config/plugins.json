@@ -1,0 +1,14 @@
+{
+  "enabled": [],
+  "disabled": [
+    "nozzle_batch",
+    "nozzle_offset"
+  ],
+  "_comment": [
+    "disabled：不想加载的插件，填写 plugins 目录下的文件名（不含 .py）或插件 id；这些插件不会被导入，平台工具栏也不会显示。",
+    "enabled：填写后进入白名单模式，只加载列表中的插件；留空表示加载除 disabled 之外的全部插件。",
+    "当前可用的插件文件名：nozzle_batch、nozzle_offset、ssh_runner、prtouch_log_analyzer、first_layer_defect、nozzle_comp_extract、mesh_log_analyzer。",
+    "例如只想禁用 PRTouch 日志分析：把 disabled 改成 [\"prtouch_log_analyzer\"]，保存后重启平台。",
+    "修改本文件后重启平台生效；配置文件写错（JSON 语法错误）时平台会回退为加载全部插件并在状态栏提示。"
+  ]
+}

@@ -8,11 +8,20 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from types import ModuleType
-from typing import Any, Callable
+from typing import Any, Callable, Iterable
 
 
 _REQUIRED_META = ("id", "name", "version", "category", "description", "order")
 _VALID_PLUGIN_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]*$")
+
+
+def _normalize_names(values: Iterable[str] | None) -> set[str]:
+    """把配置中的插件名规整为小写集合，忽略空值与首尾空白。"""
+    result: set[str] = set()
+    for value in values or ():
+        if isinstance(value, str) and value.strip():
+            result.add(value.strip().casefold())
+    return result
 
 
 @dataclass(frozen=True, slots=True)
@@ -36,26 +45,55 @@ class PluginLoadError:
 
 
 class PluginLoader:
-    """使用 importlib 从指定目录发现符合统一协议的单文件插件。"""
+    """使用 importlib 从指定目录发现符合统一协议的单文件插件。
 
-    def __init__(self, plugins_dir: Path) -> None:
+    ``disabled`` / ``enabled`` 来自 ``config/plugins.json``，用于按配置控制加载：
+
+    - ``disabled`` 中的文件名（不含 ``.py``）或插件 id 不会被加载；
+    - ``enabled`` 非空时进入白名单模式，只加载列表中的插件。
+
+    禁用按文件名预先判断，命中后插件模块根本不会被导入，因此插件的顶层代码
+    也不会执行；插件 id 用于导入后的二次核对，兼容文件名与 id 不同的情况。
+    """
+
+    def __init__(
+        self,
+        plugins_dir: Path,
+        disabled: Iterable[str] | None = None,
+        enabled: Iterable[str] | None = None,
+    ) -> None:
         self.plugins_dir = Path(plugins_dir).resolve()
+        self.disabled = _normalize_names(disabled)
+        self.enabled = _normalize_names(enabled)
+        # 最近一次 discover() 中按配置跳过的插件（文件名或插件 id）
+        self.skipped: list[str] = []
 
     def discover(self) -> tuple[list[PluginRecord], list[PluginLoadError]]:
         records: list[PluginRecord] = []
         errors: list[PluginLoadError] = []
+        skipped: list[str] = []
         seen_ids: set[str] = set()
 
         if not self.plugins_dir.is_dir():
+            self.skipped = skipped
             return records, [PluginLoadError(self.plugins_dir, "插件目录不存在")]
 
         for path in sorted(self.plugins_dir.glob("*.py"), key=lambda item: item.name.casefold()):
             if path.name == "__init__.py" or path.name.startswith("_"):
                 continue
+            # 黑名单按文件名预先判定：命中后完全不导入，插件顶层代码不会执行
+            if not self.enabled and path.stem.casefold() in self.disabled:
+                skipped.append(path.stem)
+                continue
             try:
                 record = self._load_record(path)
                 if record.plugin_id in seen_ids:
                     raise ValueError(f"插件 id 重复: {record.plugin_id}")
+                # 导入后按插件 id 复核，兼容文件名与 id 不一致的情况
+                if not self._keep(record, path.stem):
+                    self._drop(record)
+                    skipped.append(record.plugin_id)
+                    continue
                 seen_ids.add(record.plugin_id)
                 records.append(record)
             except Exception as exc:  # 隔离单个插件的导入及协议错误
@@ -68,7 +106,23 @@ class PluginLoader:
                 str(item.meta["name"]).casefold(),
             )
         )
+        self.skipped = skipped
         return records, errors
+
+    def _keep(self, record: PluginRecord, stem: str) -> bool:
+        """判断已导入的插件是否应保留。"""
+        plugin_id = record.plugin_id.casefold()
+        stem_key = stem.casefold()
+        if self.enabled:
+            return plugin_id in self.enabled or stem_key in self.enabled
+        return plugin_id not in self.disabled and stem_key not in self.disabled
+
+    @staticmethod
+    def _drop(record: PluginRecord) -> None:
+        """从 sys.modules 中移除被配置排除的插件模块，避免残留引用。"""
+        name = getattr(record.module, "__name__", None)
+        if name:
+            sys.modules.pop(name, None)
 
     def _load_record(self, path: Path) -> PluginRecord:
         module_name = f"toolplatform_plugin_{path.stem}_{abs(hash(path))}"

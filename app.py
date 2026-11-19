@@ -223,10 +223,15 @@ from PyQt6.QtGui import QCloseEvent
 from PyQt6.QtWidgets import (
     QApplication,
     QComboBox,
+    QDialog,
+    QDialogButtonBox,
     QFrame,
     QHBoxLayout,
     QLabel,
+    QListWidget,
+    QListWidgetItem,
     QMainWindow,
+    QPushButton,
     QSizePolicy,
     QStackedWidget,
     QStatusBar,
@@ -252,6 +257,10 @@ DEFAULT_CONFIG: dict[str, Any] = {
     "theme": "industrial",
     "window": {"width": 1440, "height": 900},
 }
+
+# 插件加载配置：disabled 中的插件不加载；enabled 非空时只加载白名单内的插件
+PLUGIN_CONFIG_PATH = PLATFORM_ROOT / "config" / "plugins.json"
+DEFAULT_PLUGIN_CONFIG: dict[str, Any] = {"enabled": [], "disabled": []}
 
 
 def load_config() -> tuple[dict[str, Any], str | None]:
@@ -281,6 +290,155 @@ def save_config(config: dict[str, Any]) -> None:
         json.dumps(config, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
+
+
+def _string_list(raw: object) -> list[str]:
+    """把配置中的字符串数组规整为去空白后的列表，忽略非法项。"""
+    if not isinstance(raw, (list, tuple)):
+        return []
+    return [item.strip() for item in raw if isinstance(item, str) and item.strip()]
+
+
+def load_plugin_config() -> tuple[dict[str, Any], str | None]:
+    """读取 config/plugins.json；文件不存在时返回空配置（加载全部插件）。"""
+    config = deepcopy(DEFAULT_PLUGIN_CONFIG)
+    if not PLUGIN_CONFIG_PATH.exists():
+        return config, None
+    try:
+        loaded = json.loads(PLUGIN_CONFIG_PATH.read_text(encoding="utf-8"))
+        if not isinstance(loaded, dict):
+            raise TypeError("根节点必须是对象")
+        config["enabled"] = _string_list(loaded.get("enabled"))
+        config["disabled"] = _string_list(loaded.get("disabled"))
+        return config, None
+    except Exception as exc:
+        return config, f"插件配置读取失败，已加载全部插件：{type(exc).__name__}: {exc}"
+
+
+def save_plugin_config(enabled: list[str], disabled: list[str]) -> None:
+    """把插件启用/禁用配置写回 config/plugins.json，保留文件里的说明字段。"""
+    data: dict[str, Any] = {"enabled": list(enabled), "disabled": list(disabled)}
+    try:
+        original = json.loads(PLUGIN_CONFIG_PATH.read_text(encoding="utf-8"))
+        if isinstance(original, dict) and "_comment" in original:
+            data["_comment"] = original["_comment"]
+    except Exception:
+        pass
+    PLUGIN_CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    PLUGIN_CONFIG_PATH.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+
+class PluginPreferencesDialog(QDialog):
+    """插件加载首选项：勾选要加载的插件，取消勾选即禁用。"""
+
+    def __init__(
+        self,
+        parent: QWidget | None,
+        records: list[PluginRecord],
+        config: dict[str, Any],
+    ) -> None:
+        super().__init__(parent)
+        self.setWindowTitle("首选项 · 插件加载")
+        self.setMinimumSize(560, 520)
+        self._records = sorted(
+            records,
+            key=lambda record: (
+                str(record.meta["category"]).casefold(),
+                int(record.meta["order"]),
+                str(record.meta["name"]).casefold(),
+            ),
+        )
+        self._config = config
+        self._whitelist = bool(config.get("enabled"))
+        self._build_ui()
+
+    def _build_ui(self) -> None:
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(18, 16, 18, 14)
+        layout.setSpacing(8)
+
+        heading = QLabel("插件加载")
+        heading.setObjectName("pluginTitle")
+        layout.addWidget(heading)
+
+        mode = "白名单（只加载勾选的插件）" if self._whitelist else "黑名单（勾选的插件加载，取消勾选即禁用）"
+        description = QLabel(
+            "勾选需要加载的插件，取消勾选即可暂时禁用。"
+            "当前模式：%s。保存后平台会立即重新加载插件。" % mode
+        )
+        description.setObjectName("pluginDescription")
+        description.setWordWrap(True)
+        layout.addWidget(description)
+
+        self.list_widget = QListWidget()
+        self.list_widget.setAlternatingRowColors(True)
+        enabled, disabled = self._current_names()
+        for record in self._records:
+            plugin_id = record.plugin_id
+            key = plugin_id.casefold()
+            stem = record.path.stem.casefold()
+            if self._whitelist:
+                checked = key in enabled or stem in enabled
+            else:
+                checked = not (key in disabled or stem in disabled)
+            item = QListWidgetItem(
+                "%s　·　%s　·　%s" % (record.meta["name"], record.meta["category"], plugin_id)
+            )
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked)
+            item.setData(Qt.ItemDataRole.UserRole, plugin_id)
+            item.setToolTip(str(record.meta.get("description") or ""))
+            self.list_widget.addItem(item)
+        layout.addWidget(self.list_widget, 1)
+
+        quick = QHBoxLayout()
+        check_all = QPushButton("全选")
+        check_all.clicked.connect(self._check_all)
+        quick.addWidget(check_all)
+        uncheck_all = QPushButton("全不选")
+        uncheck_all.clicked.connect(self._uncheck_all)
+        quick.addWidget(uncheck_all)
+        quick.addStretch()
+        layout.addLayout(quick)
+
+        buttons = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Save | QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.button(QDialogButtonBox.StandardButton.Save).setText("保存并重新加载")
+        buttons.button(QDialogButtonBox.StandardButton.Cancel).setText("取消")
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    def _current_names(self) -> tuple[set[str], set[str]]:
+        enabled = {str(name).strip().casefold() for name in self._config.get("enabled") or []}
+        disabled = {str(name).strip().casefold() for name in self._config.get("disabled") or []}
+        return enabled, disabled
+
+    def _check_all(self) -> None:
+        self._set_all(Qt.CheckState.Checked)
+
+    def _uncheck_all(self) -> None:
+        self._set_all(Qt.CheckState.Unchecked)
+
+    def _set_all(self, state: Qt.CheckState) -> None:
+        for index in range(self.list_widget.count()):
+            self.list_widget.item(index).setCheckState(state)
+
+    def selection(self) -> tuple[list[str], list[str]]:
+        """返回 (enabled, disabled)，沿用当前配置的模式。"""
+        checked = {
+            str(self.list_widget.item(index).data(Qt.ItemDataRole.UserRole))
+            for index in range(self.list_widget.count())
+            if self.list_widget.item(index).checkState() == Qt.CheckState.Checked
+        }
+        all_ids = [record.plugin_id for record in self._records]
+        if self._whitelist:
+            return [plugin_id for plugin_id in all_ids if plugin_id in checked], []
+        return [], [plugin_id for plugin_id in all_ids if plugin_id not in checked]
 
 
 class MessagePage(QWidget):
@@ -357,6 +515,12 @@ class ToolPlatformWindow(QMainWindow):
         platform_title = QLabel(str(self._config["title"]), top_bar)
         platform_title.setObjectName("platformTitle")
         top_layout.addWidget(platform_title)
+
+        self.preferences_button = QPushButton("首选项", top_bar)
+        self.preferences_button.setToolTip("配置哪些插件启用 / 禁用")
+        self.preferences_button.clicked.connect(self._open_preferences)
+        top_layout.addWidget(self.preferences_button)
+
         top_layout.addStretch()
         top_layout.addWidget(QLabel("主题：", top_bar))
 
@@ -425,21 +589,94 @@ class ToolPlatformWindow(QMainWindow):
         self.setStatusBar(status_bar)
         status_bar.showMessage("平台已就绪")
 
-    def _discover_plugins(self) -> None:
-        loader = PluginLoader(PLATFORM_ROOT / "plugins")
+    def _open_preferences(self) -> None:
+        """打开插件加载首选项；保存后立即重新加载插件。"""
+        all_loader = PluginLoader(PLATFORM_ROOT / "plugins")
+        records, errors = all_loader.discover()
+        if not records:
+            self.statusBar().showMessage("没有找到可配置的插件", 5000)
+            return
+
+        config, warning = load_plugin_config()
+        if warning:
+            self.statusBar().showMessage(warning, 10000)
+
+        dialog = PluginPreferencesDialog(self, records, config)
+        if dialog.exec() != QDialog.DialogCode.Accepted:
+            return
+
+        enabled, disabled = dialog.selection()
+        save_plugin_config(enabled, disabled)
+        self._reload_plugins(enabled, disabled)
+
+        if errors:
+            self.statusBar().showMessage(
+                "插件配置已保存；另有 %d 个插件加载失败，未列入首选项" % len(errors),
+                10000,
+            )
+        else:
+            self.statusBar().showMessage("插件配置已保存并重新加载", 5000)
+
+    def _reload_plugins(self, enabled: list[str], disabled: list[str]) -> None:
+        """按新配置清理并重新加载全部插件页面。"""
+        for plugin_id, widget in list(self._loaded_widgets.items()):
+            self._call_lifecycle(widget, "shutdown", plugin_id)
+        for page in list(self._pages.values()):
+            self.stack.removeWidget(page)
+            page.deleteLater()
+        self._pages.clear()
+        self._loaded_widgets.clear()
+        self._contexts.clear()
+        self._records.clear()
+        self._current_plugin_id = None
+        self.stack.setCurrentWidget(self.welcome_page)
+
+        loader = PluginLoader(
+            PLATFORM_ROOT / "plugins",
+            disabled=disabled,
+            enabled=enabled,
+        )
         records, errors = loader.discover()
         self._records = {record.plugin_id: record for record in records}
         self._populate_navigation(records, errors)
 
+        skipped = list(loader.skipped)
+        details = [f"发现 {len(records)} 个插件"]
         if errors:
-            self.statusBar().showMessage(
-                f"发现 {len(records)} 个插件，{len(errors)} 个插件加载失败；平台仍可正常使用",
-                10000,
-            )
+            details.append(f"{len(errors)} 个加载失败")
+        if skipped:
+            details.append(f"按配置跳过 {len(skipped)} 个")
+        self.statusBar().showMessage("，".join(details) + "；平台仍可正常使用", 10000)
+
+    def _discover_plugins(self) -> None:
+        plugin_config, plugin_warning = load_plugin_config()
+        loader = PluginLoader(
+            PLATFORM_ROOT / "plugins",
+            disabled=plugin_config["disabled"],
+            enabled=plugin_config["enabled"],
+        )
+        records, errors = loader.discover()
+        self._records = {record.plugin_id: record for record in records}
+        self._populate_navigation(records, errors)
+
+        skipped = list(loader.skipped)
+        details = [f"发现 {len(records)} 个插件"]
+        if errors:
+            details.append(f"{len(errors)} 个加载失败")
+        if skipped:
+            details.append(f"按配置跳过 {len(skipped)} 个")
+        message = "，".join(details)
+        if plugin_warning:
+            message = f"{plugin_warning}；{message}"
+        if errors or skipped or plugin_warning:
+            self.statusBar().showMessage(f"{message}；平台仍可正常使用", 10000)
         elif records:
-            self.statusBar().showMessage(f"已发现 {len(records)} 个插件", 5000)
+            self.statusBar().showMessage(message, 5000)
         else:
-            self.statusBar().showMessage("未发现插件，请向 plugins 目录添加插件", 7000)
+            self.statusBar().showMessage(
+                "未发现插件，请向 plugins 目录添加插件，或检查 config/plugins.json 配置",
+                7000,
+            )
 
     def _populate_navigation(
         self,
