@@ -1,11 +1,221 @@
-"""ToolPlatform PyQt6 桌面宿主。"""
+"""ToolPlatform PyQt6 桌面宿主 —— 单一启动入口。
+
+启动时会：
+  1. 检测 Python 版本
+  2. 自动安装 requirements.txt 中缺失的依赖
+  3. 启动平台主窗口
+
+直接运行:
+    python app.py
+"""
 
 from __future__ import annotations
 
-import json
+# ============================================================================
+# 启动前环境自检与依赖安装
+# （放在最前面；PyQt6 等第三方导入必须发生在依赖安装之后）
+# ============================================================================
+
+import importlib.util
+import os
+import subprocess
 import sys
-from copy import deepcopy
 from pathlib import Path
+
+_BOOTSTRAP_ROOT = Path(__file__).resolve().parent
+_REQUIREMENTS_FILE = _BOOTSTRAP_ROOT / "requirements.txt"
+
+# 最低 / 推荐 Python 版本
+_MIN_PY = (3, 10)
+_REC_PY = (3, 14)
+
+# 包安装名 → 导入名
+_PKG_IMPORT_MAP = {
+    "PyQt6": "PyQt6",
+    "numpy": "numpy",
+    "opencv-python": "cv2",
+    "paramiko": "paramiko",
+    "requests": "requests",
+    "Pillow": "PIL",
+    "matplotlib": "matplotlib",
+}
+
+
+class _Colors:
+    RESET = "\033[0m"
+    RED = "\033[91m"
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    CYAN = "\033[96m"
+    BOLD = "\033[1m"
+
+
+def _enable_windows_ansi() -> None:
+    if os.name == "nt":
+        try:
+            import ctypes
+            kernel32 = ctypes.windll.kernel32
+            kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        except Exception:
+            pass
+
+
+def _ok(msg: str) -> None:
+    print(f"{_Colors.GREEN}[OK]{_Colors.RESET} {msg}")
+
+
+def _info(msg: str) -> None:
+    print(f"{_Colors.BLUE}[INFO]{_Colors.RESET} {msg}")
+
+
+def _warn(msg: str) -> None:
+    print(f"{_Colors.YELLOW}[WARN]{_Colors.RESET} {msg}")
+
+
+def _err(msg: str) -> None:
+    print(f"{_Colors.RED}[ERR]{_Colors.RESET} {msg}")
+
+
+def _check_python_version() -> bool:
+    current = sys.version_info[:2]
+    if current < _MIN_PY:
+        _err(f"Python 版本 {current[0]}.{current[1]} 过低（需要 >= {_MIN_PY[0]}.{_MIN_PY[1]}）")
+        return False
+    if current < _REC_PY:
+        _warn(f"建议使用 Python {_REC_PY[0]}.{_REC_PY[1]} 以获得最佳兼容性")
+    else:
+        _ok(f"Python {sys.version.split()[0]}")
+    return True
+
+
+def _is_installed(import_name: str) -> bool:
+    try:
+        return importlib.util.find_spec(import_name.split(".")[0]) is not None
+    except (ModuleNotFoundError, ValueError):
+        return False
+
+
+def _installed_version(import_name: str) -> str:
+    try:
+        from importlib.metadata import version as _ver
+        pkg = {"cv2": "opencv-python", "PIL": "Pillow"}.get(import_name, import_name)
+        return _ver(pkg)
+    except Exception:
+        try:
+            m = importlib.import_module(import_name.split(".")[0])
+            return getattr(m, "__version__", "?")
+        except Exception:
+            return "?"
+
+
+def _parse_requirements() -> list[tuple[str, str]]:
+    """返回 [(pkg_name, full_spec), ...]"""
+    if not _REQUIREMENTS_FILE.exists():
+        return []
+    result = []
+    for raw in _REQUIREMENTS_FILE.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        name = line.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0].strip()
+        result.append((name, line))
+    return result
+
+
+def _install_packages(specs: list[str]) -> list[str]:
+    """逐个 pip install，返回失败列表。"""
+    failed = []
+    for spec in specs:
+        name = spec.split("==")[0].split(">=")[0].strip()
+        _info(f"安装 {name}...")
+        try:
+            r = subprocess.run(
+                [sys.executable, "-m", "pip", "install", spec, "-q"],
+                capture_output=True, text=True, timeout=600,
+            )
+            if r.returncode == 0:
+                _ok(f"{name} 安装成功")
+            else:
+                _err(f"{name} 安装失败")
+                if r.stderr.strip():
+                    print(f"    {r.stderr.strip()[:300]}")
+                failed.append(name)
+        except subprocess.TimeoutExpired:
+            _err(f"{name} 安装超时")
+            failed.append(name)
+        except Exception as e:
+            _err(f"{name} 安装异常: {e}")
+            failed.append(name)
+    return failed
+
+
+def _bootstrap_environment() -> None:
+    """检查 Python 版本，自动安装缺失依赖。失败时给出清晰提示并退出。"""
+    _enable_windows_ansi()
+    print(f"\n{_Colors.CYAN}{_Colors.BOLD}=== ToolPlatform 启动 ==={_Colors.RESET}")
+    
+    if not _check_python_version():
+        input("\n按回车键退出...")
+        sys.exit(1)
+    
+    requirements = _parse_requirements()
+    if not requirements:
+        _warn("未找到 requirements.txt，跳过依赖检查")
+        return
+    
+    missing: list[str] = []
+    for name, spec in requirements:
+        import_name = _PKG_IMPORT_MAP.get(name, name)
+        if _is_installed(import_name):
+            print(f"  {_Colors.GREEN}✓{_Colors.RESET} {name} ({_installed_version(import_name)})")
+        else:
+            print(f"  {_Colors.RED}✗{_Colors.RESET} {name} {_Colors.YELLOW}未安装{_Colors.RESET}")
+            missing.append(spec)
+    
+    if not missing:
+        _ok("依赖检查通过")
+        return
+    
+    print()
+    _warn(f"发现 {len(missing)} 个缺失依赖")
+    try:
+        ans = input(f"{_Colors.YELLOW}是否自动安装缺失依赖? [Y/n]: {_Colors.RESET}").strip().lower()
+    except EOFError:
+        ans = "y"
+    
+    if ans not in ("", "y", "yes", "是"):
+        _warn("已跳过依赖安装，平台可能无法正常运行")
+        return
+    
+    failed = _install_packages(missing)
+    if failed:
+        print()
+        _err(f"以下 {len(failed)} 个包安装失败: {', '.join(failed)}")
+        print()
+        _warn("可以尝试手动安装（推荐国内镜像）:")
+        print(f"  {sys.executable} -m pip install -r requirements.txt "
+              f"-i https://pypi.tuna.tsinghua.edu.cn/simple")
+        print()
+        try:
+            ans = input(f"{_Colors.YELLOW}是否仍要尝试启动? [y/N]: {_Colors.RESET}").strip().lower()
+        except EOFError:
+            ans = "n"
+        if ans not in ("y", "yes", "是"):
+            input("\n按回车键退出...")
+            sys.exit(1)
+
+
+# 先完成环境自检，再开始导入 Qt 等重量级依赖
+_bootstrap_environment()
+
+
+# ============================================================================
+# 下面是平台主程序代码（原 app.py 内容）
+# ============================================================================
+
+import json
+from copy import deepcopy
 from typing import Any
 
 from PyQt6.QtCore import Qt

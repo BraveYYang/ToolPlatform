@@ -4,3 +4,4 @@ opencv-python==5.0.0.93
 paramiko==5.0.0
 requests==2.34.2
 Pillow==12.1.0
+matplotlib==3.10.0
