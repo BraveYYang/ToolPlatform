@@ -108,3 +108,9 @@ def create_plugin(context, parent=None) -> QWidget:
 - `logs/<plugin-id>/`：插件日志。
 
 运行时生成的数据、配置和日志目录不会影响原有工具文件。
+
+# 特别鸣谢
+- ZYY
+- Mrlzr
+- DSH大肥鱼\
+....
